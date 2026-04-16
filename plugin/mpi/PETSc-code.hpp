@@ -459,6 +459,8 @@ namespace PETSc {
         varfBem<fes1, fes2>(PUh, PVh, same, VFBEM, stack, b->largs, ds, &B);
     }
 #endif
+    if (!ds.sparams.empty())
+      PetscOptionsInsertString(NULL, ds.sparams.c_str());
     return SetAny<Dmat*>(&B);
   }
 } // namespace PETSc
