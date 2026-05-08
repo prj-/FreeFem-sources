@@ -16,6 +16,10 @@ on:
         description: 'Windows versions as JSON array'
         required: true
         type: string
+      macos_versions:
+        description: 'macOS versions as JSON array'
+        required: true
+        type: string
 
 jobs:
   # Needed because released package have this number in name, not the tag.
@@ -102,3 +106,32 @@ jobs:
           & "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 4 \
           .\FreeFem++-mpi.exe .\examples\mpi\MUMPS.edp
 
+  macos:
+    needs: extract_version
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJson(inputs.macos_versions || '[15]') }}
+    name: macOS ${{ matrix.version }} - Check .dmg
+    runs-on: macos-${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download package
+        run: |
+          curl -L \
+            -o "FreeFEM-${{ needs.extract_version.outputs.ff_version }}-macos${{ matrix.version }}.dmg" \
+            "https://github.com/FreeFem/FreeFem-sources/releases/download/${{ inputs.release_version }}/FreeFEM-${{ needs.extract_version.outputs.ff_version }}-macos${{ matrix.version }}.dmg"
+
+      - name: Verify installation
+        run: |
+          DMG_FILE="FreeFEM-${{ needs.extract_version.outputs.ff_version }}-macos${{ matrix.version }}.dmg"
+          MOUNT_DIR="$RUNNER_TEMP/freefem-dmg-mount"
+          mkdir -p "$MOUNT_DIR"
+          hdiutil attach "$DMG_FILE" -mountpoint "$MOUNT_DIR"
+          trap 'hdiutil detach "$MOUNT_DIR"' EXIT
+          APP_BIN="$MOUNT_DIR/FreeFem++.app/Contents/ff-${{ needs.extract_version.outputs.ff_version }}/bin/FreeFem++"
+          APP_EXAMPLE="$MOUNT_DIR/FreeFem++.app/Contents/ff-${{ needs.extract_version.outputs.ff_version }}/share/FreeFEM/${{ needs.extract_version.outputs.ff_version }}/examples/tutorial/Laplace.edp"
+          test -x "$APP_BIN"
+          test -f "$APP_EXAMPLE"
+          "$APP_BIN" "$APP_EXAMPLE" -nw
