@@ -39,8 +39,8 @@ jobs:
       - name: Install dependencies
         run: |
           brew install m4 bison autoconf automake
-          if (( ${{ matrix.macos_version }} != 26 )); then
-            brew remove llvm@$LLVM_VERSION
+          if [ -n "${LLVM_VERSION:-}" ] && brew list --versions "llvm@$LLVM_VERSION" >/dev/null; then
+            brew remove "llvm@$LLVM_VERSION"
           fi
 
       - name: Symlink gfortran
