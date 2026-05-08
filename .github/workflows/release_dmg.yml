@@ -30,9 +30,9 @@ jobs:
       - name: Set environment
         run: |
           sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-          if (( ${{ matrix.macos_version }} == 15 )); then
+          if [ "${{ matrix.macos_version }}" = "15" ]; then
             echo "LLVM_VERSION=18" >> $GITHUB_ENV
-          elif (( ${{ matrix.macos_version }} == 14 )); then
+          elif [ "${{ matrix.macos_version }}" = "14" ]; then
             echo "LLVM_VERSION=15" >> $GITHUB_ENV
           fi
 
