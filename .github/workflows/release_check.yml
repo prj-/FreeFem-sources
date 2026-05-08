@@ -21,6 +21,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   # Needed because released package have this number in name, not the tag.
   extract_version:

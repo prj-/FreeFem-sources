@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*.*'  # Only run on version tags
 
+permissions:
+  contents: read
+
 jobs:
   set_versions:
     runs-on: ubuntu-latest
