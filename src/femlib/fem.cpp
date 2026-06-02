@@ -294,8 +294,10 @@ public:
 					    //  has any mortar link (in either direction), so that chain-start
 					    //  vertices (linkg!=-1, linkd==-1) and chain-end vertices
 					    //  (linkg==-1, linkd!=-1) are both detected as mortar extremities
-					    if(linkg[s0] != -1 || linkd[s0] != -1) { linkg[s0] = -2; linkd[s0] = -2; }
-					    if(linkg[s1] != -1 || linkd[s1] != -1) { linkg[s1] = -2; linkd[s1] = -2; }
+					    if(linkg[s0] != -1 || linkd[s0] != -1)
+					{ linkg[s0] = -2; linkd[s0] = -2; }
+					    if(linkg[s1] != -1 || linkd[s1] != -1)
+					{ linkg[s1] = -2; linkd[s1] = -2; }
 					}
 
 					    //    remark if   linkd[i]  == -2  extremities of mortars (more than 2 mortars)
