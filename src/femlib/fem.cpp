@@ -290,14 +290,11 @@ public:
 					{
 					    int s0,s1;
 					    VerticesNumberOfEdge(triangles[k],j,s0,s1);
-					    //  mark both linkg and linkd as extremity (-2) if the vertex
-					    //  has any mortar link (in either direction), so that chain-start
-					    //  vertices (linkg!=-1, linkd==-1) and chain-end vertices
-					    //  (linkg==-1, linkd!=-1) are both detected as mortar extremities
-					    if(linkg[s0] != -1 || linkd[s0] != -1)
-					{ linkg[s0] = -2; linkd[s0] = -2; }
-					    if(linkg[s1] != -1 || linkd[s1] != -1)
-					{ linkg[s1] = -2; linkd[s1] = -2; }
+					    linkg[s0] = linkg[s0] != -1 ?  -2 : -1;
+					    linkg[s1] = linkg[s1] != -1 ?  -2 : -1;
+
+					    linkd[s1] = linkd[s1] != -1 ?  -2 : -1;
+					    linkd[s0] = linkd[s0] != -1 ?  -2 : -1;
 					}
 
 					    //    remark if   linkd[i]  == -2  extremities of mortars (more than 2 mortars)
@@ -360,13 +357,8 @@ public:
 
 
 			for (int is=0;is<nv;is++)
-			    if (linkg[is] == -2)
+			    if (linkg[is] == -2 || linkd[is] == -2)
 			    { // for all extremity of mortars
-				if(linkd[is] != -2)
-				{
-				  cout <<" Bug in mortar constrution : close to vertex "<< is << endl;
-				  ffassert(linkd[is] == -2);
-				}
 				const Vertex & S = vertices[is];
 				R2  A(S);
 				int km=0;
