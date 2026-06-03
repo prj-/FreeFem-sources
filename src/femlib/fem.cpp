@@ -448,7 +448,11 @@ public:
 						int gdtry = (itry == 0) ? gd : 1-gd;
 						int dgtry = 1-gdtry;
 						int smtry = sgd[gdtry];
+						int snext = link[gdtry][smtry];
 						throwassert(headT3[smtry]>=0);// on a mortar ??
+						int ptop=-1,ktop=-1,itop=-1,jtop=-1;
+						Vertex *pVtop=0;
+						R lAVtop=0.0,avamTop=0.0,perpTop=1e100;
 						int pbest=-1,kbest=-1,ibest=-1,jbest=-1;
 						Vertex *pVbest=0;
 						R lAVbest=0.0,avamBest=0.0,perpBest=1e100;
@@ -476,6 +480,11 @@ public:
 							    if (a > ll[gdtry] - l * 1e-8)
 							    {
 								R perp = Abs((AM.perp(),AV));
+								if (snext >= 0 && number(V) == snext
+								    && (a < avamTop || !pVtop || (a == avamTop && perp < perpTop)))
+								{
+								    ptop=p; ktop=k; itop=i; jtop=jjj; pVtop=&V; lAVtop=l; avamTop=a; perpTop=perp;
+								}
 								if (perp < l * 1e-6 && (a < avamBest || !pVbest || (a == avamBest && perp < perpBest)))
 								{
 								    pbest=p; kbest=k; ibest=i; jbest=jjj; pVbest=&V; lAVbest=l; avamBest=a; perpBest=perp;
@@ -488,7 +497,14 @@ public:
 							}
 						    }
 						}
-						if (pVbest)
+						if (pVtop)
+						{
+						    p=ptop; k=ktop; i=itop; j=jtop; pV=pVtop; lAV=lAVtop; avam=avamTop;
+						    gd = gdtry;
+						    dg = dgtry;
+						    sm = smtry;
+						}
+						else if (pVbest)
 						{
 						    p=pbest; k=kbest; i=ibest; j=jbest; pV=pVbest; lAV=lAVbest; avam=avamBest;
 						    gd = gdtry;
