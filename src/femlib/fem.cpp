@@ -473,7 +473,7 @@ public:
 							    R2 AV(A,V);
 							    R l = Norme2(AV);
 							    R a = (AV,AM);
-							    if (a > ll[gdtry])
+							    if (a > ll[gdtry] - l * 1e-8)
 							    {
 								R perp = Abs((AM.perp(),AV));
 								if (perp < l * 1e-6 && (a < avamBest || !pVbest || (a == avamBest && perp < perpBest)))
