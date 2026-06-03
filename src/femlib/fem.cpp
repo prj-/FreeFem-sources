@@ -444,6 +444,12 @@ public:
 					    int p,k,i,j;
 					    //  search the the first start ( sens = gd )
 					    throwassert(headT3[sm]>=0);// on a mortar ??
+						int pbest=-1,kbest=-1,ibest=-1,jbest=-1;
+						Vertex *pVbest=0;
+						R lAVbest=0.0,avamBest=0.0,perpBest=1e100;
+						int prela=-1,krela=-1,irela=-1,jrela=-1;
+						Vertex *pVrela=0;
+						R lAVrela=0.0,avamRela=0.0,perpRela=1e100;
 						for ( p=headT3[sm] ;p>=0; p=NextT3[p])
 						{
 						    k=p/3;
@@ -460,14 +466,30 @@ public:
 							{  // check the sens and the direction
 
 							    R2 AV(A,V);
-							    lAV = Norme2(AV);
-							    avam = (AV,AM);
-							    // go ahead in direction AM
-							    if ( (avam > ll[gd])  && Abs((AM.perp(),AV)) < lAV * 1e-6 )
-							    { j=jjj; pV = &V; break; } //  ok good
+							    R l = Norme2(AV);
+							    R a = (AV,AM);
+							    if (a > ll[gd])
+							    {
+								R perp = Abs((AM.perp(),AV));
+								if (perp < l * 1e-6 && (a < avamBest || !pVbest || (a == avamBest && perp < perpBest)))
+								{
+								    pbest=p; kbest=k; ibest=i; jbest=jjj; pVbest=&V; lAVbest=l; avamBest=a; perpBest=perp;
+								}
+								else if (perp < l * 1e-4 && (a < avamRela || !pVrela || (a == avamRela && perp < perpRela)))
+								{
+								    prela=p; krela=k; irela=i; jrela=jjj; pVrela=&V; lAVrela=l; avamRela=a; perpRela=perp;
+								}
+							    }
 							}
 						    }
-						    if (pV) break;
+						}
+						if (pVbest)
+						{
+						    p=pbest; k=kbest; i=ibest; j=jbest; pV=pVbest; lAV=lAVbest; avam=avamBest;
+						}
+						else if (pVrela)
+						{
+						    p=prela; k=krela; i=irela; j=jrela; pV=pVrela; lAV=lAVrela; avam=avamRela;
 						}
 						throwassert(p>=0 && pV); //  PB reach the end without founding
 						throwassert( Abs((AM.perp(),A-*pV)) < 1e-5);
