@@ -450,20 +450,24 @@ public:
 						    i=p%3;
 						    const Triangle & T(triangles[k]);
 						    throwassert( vertices + sm == &T[i]);
-						    // for the 2 egdes contening the vertex j of the triangle k
-						    j = EdgesVertexTriangle[i][dg];
-						    Vertex &V = T[VerticesOfTriangularEdge[j][dg]];
-						    throwassert( &T[VerticesOfTriangularEdge[j][gd]] == vertices + sm);
-						    if ( TonBoundary[k] & AddMortar[j])
-						    {  // check the sens and the direction
+						    // for the 2 edges containing the vertex i of the triangle k
+						    for (int jj=0; jj<2; ++jj)
+						    {
+							int jjj = EdgesVertexTriangle[i][jj];
+							if (&T[VerticesOfTriangularEdge[jjj][gd]] != vertices + sm) continue;
+							Vertex &V = T[VerticesOfTriangularEdge[jjj][dg]];
+							if ( TonBoundary[k] & AddMortar[jjj])
+							{  // check the sens and the direction
 
-							R2 AV(A,V);
-							lAV = Norme2(AV);
-							avam = (AV,AM);
-							// go ahead in direction AM
-							if ( (avam > ll[gd])  && Abs((AM.perp(),AV)) < lAV * 1e-6 )
-							{pV = &V;break;} //  ok good
+							    R2 AV(A,V);
+							    lAV = Norme2(AV);
+							    avam = (AV,AM);
+							    // go ahead in direction AM
+							    if ( (avam > ll[gd])  && Abs((AM.perp(),AV)) < lAV * 1e-6 )
+							    { j=jjj; pV = &V; break; } //  ok good
+							}
 						    }
+						    if (pV) break;
 						}
 						throwassert(p>=0 && pV); //  PB reach the end without founding
 						throwassert( Abs((AM.perp(),A-*pV)) < 1e-5);
