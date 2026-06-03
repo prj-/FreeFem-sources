@@ -290,11 +290,11 @@ public:
 					{
 					    int s0,s1;
 					    VerticesNumberOfEdge(triangles[k],j,s0,s1);
+					    // only cut the directional links that correspond to this
+					    // boundary edge; keep other mortar links at the same vertices
+					    // so traversal can continue on non-boundary mortar edges.
 					    linkg[s0] = linkg[s0] != -1 ?  -2 : -1;
-					    linkg[s1] = linkg[s1] != -1 ?  -2 : -1;
-
 					    linkd[s1] = linkd[s1] != -1 ?  -2 : -1;
-					    linkd[s0] = linkd[s0] != -1 ?  -2 : -1;
 					}
 
 					    //    remark if   linkd[i]  == -2  extremities of mortars (more than 2 mortars)
