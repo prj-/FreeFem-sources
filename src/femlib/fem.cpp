@@ -429,7 +429,7 @@ public:
 					sgd[0]=sgd[1]=is;
 					link[0] = linkg;
 					link[1] = linkd;
-					int gd=0; //  gd = 0 => left side  an gd=1 => right side
+					int gd = (linkg[is] == -1 && linkd[is] != -1) ? 1 : 0; //  gd = 0 => left side  an gd=1 => right side
 
 
 					int kkkk=0;
