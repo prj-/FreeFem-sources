@@ -477,11 +477,15 @@ public:
 							    R2 AV(A,V);
 							    R l = Norme2(AV);
 							    R a = (AV,AM);
-							    if (a > ll[gdtry] - l * 1e-6)
+							    R perp = Abs((AM.perp(),AV));
+							    if ((snext >= 0) && (number(V) == snext)
+								&& (a < avamTop || !pVtop || (a == avamTop && perp < perpTop)))
 							    {
-								R perp = Abs((AM.perp(),AV));
-								if ((((snext >= 0) && (number(V) == snext))
-								     || ((snext < 0) && (perp < 1e-5)))
+								ptop=p; ktop=k; itop=i; jtop=jjj; pVtop=&V; lAVtop=l; avamTop=a; perpTop=perp;
+							    }
+							    else if (a > ll[gdtry] - l * 1e-6)
+							    {
+								if ((snext < 0) && (perp < 1e-5)
 								    && (a < avamTop || !pVtop || (a == avamTop && perp < perpTop)))
 								{
 								    ptop=p; ktop=k; itop=i; jtop=jjj; pVtop=&V; lAVtop=l; avamTop=a; perpTop=perp;
