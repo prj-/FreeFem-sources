@@ -4,10 +4,16 @@
 
 ## Usage
 
-Run a FreeFEM script:
+Run a FreeFEM script (bash/zsh):
 
 ```bash
 docker run --rm -v $(pwd):/home/user freefem/freefem myScript.edp
+```
+
+PowerShell:
+
+```powershell
+docker run --rm -v ${PWD}:/home/user freefem/freefem myScript.edp
 ```
 
 Run interactively:

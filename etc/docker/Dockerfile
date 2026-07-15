@@ -8,6 +8,7 @@ LABEL org.opencontainers.image.description="FreeFEM finite element language"
 LABEL org.opencontainers.image.url="https://freefem.org"
 LABEL org.opencontainers.image.source="https://github.com/FreeFem/FreeFem-sources"
 LABEL org.opencontainers.image.licenses="LGPL-2.1"
+LABEL org.opencontainers.image.version="${FF_VERSION}"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
