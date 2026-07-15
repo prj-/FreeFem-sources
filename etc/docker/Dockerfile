@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install the FreeFEM .deb built for Ubuntu 24.04
-COPY FreeFEM-${FF_VERSION}-amd64-ubuntu24.04.deb /tmp/freefem.deb
+# Expected filename pattern: FreeFEM-<version>-amd64-ubuntu24.04.deb
+COPY FreeFEM-*.deb /tmp/freefem.deb
 RUN apt-get update && apt-get install -y --no-install-recommends /tmp/freefem.deb \
     && rm -f /tmp/freefem.deb \
     && rm -rf /var/lib/apt/lists/*

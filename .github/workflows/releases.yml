@@ -114,11 +114,13 @@ jobs:
           fi
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
+      - name: Prepare Docker build context
+        run: cp ./etc/docker/Dockerfile ./docker-context/Dockerfile
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./docker-context
-          file: ./etc/docker/Dockerfile
           push: true
           tags: ${{ steps.docker_tags.outputs.tags }}
           build-args: |
