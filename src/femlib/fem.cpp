@@ -290,11 +290,11 @@ public:
 					{
 					    int s0,s1;
 					    VerticesNumberOfEdge(triangles[k],j,s0,s1);
+					    // only cut the directional links that correspond to this
+					    // boundary edge; keep other mortar links at the same vertices
+					    // so traversal can continue on non-boundary mortar edges.
 					    linkg[s0] = linkg[s0] != -1 ?  -2 : -1;
-					    linkg[s1] = linkg[s1] != -1 ?  -2 : -1;
-
 					    linkd[s1] = linkd[s1] != -1 ?  -2 : -1;
-					    linkd[s0] = linkd[s0] != -1 ?  -2 : -1;
 					}
 
 					    //    remark if   linkd[i]  == -2  extremities of mortars (more than 2 mortars)
@@ -357,13 +357,8 @@ public:
 
 
 			for (int is=0;is<nv;is++)
-			    if (linkg[is] == -2)
+			    if (linkg[is] == -2 || linkd[is] == -2)
 			    { // for all extremity of mortars
-				if(linkd[is] != -2)
-				{
-				  cout <<" Bug in mortar constrution : close to vertex "<< is << endl;
-				  ffassert(linkd[is] == -2);
-				}
 				const Vertex & S = vertices[is];
 				R2  A(S);
 				int km=0;
@@ -434,42 +429,101 @@ public:
 					sgd[0]=sgd[1]=is;
 					link[0] = linkg;
 					link[1] = linkd;
-					int gd=0; //  gd = 0 => left side  an gd=1 => right side
+					int gd = (linkg[is] == -1 && linkd[is] != -1) ? 1 : 0; //  gd = 0 => left side  an gd=1 => right side
 
 
 					int kkkk=0;
 					do { //   for all
 
 
-					    int sm = sgd[gd];
-					    int  dg = 1-gd;
+					    int sm=-1;
+					    int  dg=-1;
 
-					    R lAV,avam;
+					    R lAV=0.0,avam=0.0;
 					    Vertex *pV=0;
-					    int p,k,i,j;
+					    int p=-1,k=-1,i=-1,j=-1;
 					    //  search the the first start ( sens = gd )
-					    throwassert(headT3[sm]>=0);// on a mortar ??
-						for ( p=headT3[sm] ;p>=0; p=NextT3[p])
+					    for (int itry=0; itry<2 && !pV; ++itry)
+					    {
+						int gdtry = (itry == 0) ? gd : 1-gd;
+						int dgtry = 1-gdtry;
+						int smtry = sgd[gdtry];
+						int snext = link[gdtry][smtry];
+						throwassert(headT3[smtry]>=0);// on a mortar ??
+						int ptop=-1,ktop=-1,itop=-1,jtop=-1;
+						Vertex *pVtop=0;
+						R lAVtop=0.0,avamTop=0.0,perpTop=1e100;
+						int pbest=-1,kbest=-1,ibest=-1,jbest=-1;
+						Vertex *pVbest=0;
+						R lAVbest=0.0,avamBest=0.0,perpBest=1e100;
+						int prela=-1,krela=-1,irela=-1,jrela=-1;
+						Vertex *pVrela=0;
+						R lAVrela=0.0,avamRela=0.0,perpRela=1e100;
+						for ( p=headT3[smtry] ;p>=0; p=NextT3[p])
 						{
 						    k=p/3;
 						    i=p%3;
 						    const Triangle & T(triangles[k]);
-						    throwassert( vertices + sm == &T[i]);
-						    // for the 2 egdes contening the vertex j of the triangle k
-						    j = EdgesVertexTriangle[i][dg];
-						    Vertex &V = T[VerticesOfTriangularEdge[j][dg]];
-						    throwassert( &T[VerticesOfTriangularEdge[j][gd]] == vertices + sm);
-						    if ( TonBoundary[k] & AddMortar[j])
-						    {  // check the sens and the direction
+						    throwassert( vertices + smtry == &T[i]);
+						    // for the 2 edges containing the vertex i of the triangle k
+						    for (int jj=0; jj<2; ++jj)
+						    {
+							int jjj = EdgesVertexTriangle[i][jj];
+							if (&T[VerticesOfTriangularEdge[jjj][gdtry]] != vertices + smtry) continue;
+							Vertex &V = T[VerticesOfTriangularEdge[jjj][dgtry]];
+							if ( TonBoundary[k] & AddMortar[jjj])
+							{  // check the sens and the direction
 
-							R2 AV(A,V);
-							lAV = Norme2(AV);
-							avam = (AV,AM);
-							// go ahead in direction AM
-							if ( (avam > ll[gd])  && Abs((AM.perp(),AV)) < lAV * 1e-6 )
-							{pV = &V;break;} //  ok good
+							    R2 AV(A,V);
+							    R l = Norme2(AV);
+							    R a = (AV,AM);
+							    R perp = Abs((AM.perp(),AV));
+							    if ((snext >= 0) && (number(V) == snext)
+								&& (a < avamTop || !pVtop || (a == avamTop && perp < perpTop)))
+							    {
+								ptop=p; ktop=k; itop=i; jtop=jjj; pVtop=&V; lAVtop=l; avamTop=a; perpTop=perp;
+							    }
+							    else if (a > ll[gdtry] - l * 1e-6)
+							    {
+								if ((snext < 0) && (perp < 1e-5)
+								    && (a < avamTop || !pVtop || (a == avamTop && perp < perpTop)))
+								{
+								    ptop=p; ktop=k; itop=i; jtop=jjj; pVtop=&V; lAVtop=l; avamTop=a; perpTop=perp;
+								}
+								if (perp < l * 1e-6 && (a < avamBest || !pVbest || (a == avamBest && perp < perpBest)))
+								{
+								    pbest=p; kbest=k; ibest=i; jbest=jjj; pVbest=&V; lAVbest=l; avamBest=a; perpBest=perp;
+								}
+								else if (perp < l * 1e-4 && (a < avamRela || !pVrela || (a == avamRela && perp < perpRela)))
+								{
+								    prela=p; krela=k; irela=i; jrela=jjj; pVrela=&V; lAVrela=l; avamRela=a; perpRela=perp;
+								}
+							    }
+							}
 						    }
 						}
+						if (pVtop)
+						{
+						    p=ptop; k=ktop; i=itop; j=jtop; pV=pVtop; lAV=lAVtop; avam=avamTop;
+						    gd = gdtry;
+						    dg = dgtry;
+						    sm = smtry;
+						}
+						else if (pVbest)
+						{
+						    p=pbest; k=kbest; i=ibest; j=jbest; pV=pVbest; lAV=lAVbest; avam=avamBest;
+						    gd = gdtry;
+						    dg = dgtry;
+						    sm = smtry;
+						}
+						else if (pVrela)
+						{
+						    p=prela; k=krela; i=irela; j=jrela; pV=pVrela; lAV=lAVrela; avam=avamRela;
+						    gd = gdtry;
+						    dg = dgtry;
+						    sm = smtry;
+						}
+					    }
 						throwassert(p>=0 && pV); //  PB reach the end without founding
 						throwassert( Abs((AM.perp(),A-*pV)) < 1e-5);
 
